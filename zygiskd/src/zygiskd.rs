@@ -178,7 +178,7 @@ fn handle_daemon_action(mut stream: UnixStream, context: &Context) -> Result<()>
         DaemonSocketAction::RequestLogcatFd => {
             loop {
                 let level = match stream.read_u8() {
-                    Ok(level) => level,
+                    Ok(level) => level as i32,
                     Err(_) => break,
                 };
                 let tag = stream.read_string()?;
@@ -186,7 +186,7 @@ fn handle_daemon_action(mut stream: UnixStream, context: &Context) -> Result<()>
                 let message = stream.read_string()?;
                 let message = std::ffi::CString::new(message)?;
                 unsafe {
-                    __android_log_print(level as i32, tag.as_ptr(), message.as_ptr());
+                    __android_log_print(level, tag.as_ptr(), message.as_ptr());
                 }
             }
         }
